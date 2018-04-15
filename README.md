@@ -11,3 +11,11 @@
 - [ssrmu.sh](https://github.com/oogh/scripts/blob/master/ssrmu.sh)
   - *来源:* https://github.com/ToyoDAdoubi/doubi
 
+  - *使用:* 
+
+    ```shell
+    wget -N --no-check-certificate https://raw.githubusercontent.com/oogh/scripts/master/ssrmu.sh && chmod +x ssrmu.sh && bash ssrmu.sh
+    ```
+
+    ​
+
