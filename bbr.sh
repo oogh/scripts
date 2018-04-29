@@ -16,9 +16,9 @@ plain='\033[0m'
 
 cur_dir=$(pwd)
 
-[[ $EUID -ne 0 ]] && echo -e "${red}错误:${plain} This script must be run as root!" && exit 1
+[[ $EUID -ne 0 ]] && echo -e "${red}错误:${plain} 请以 root 用户运行该脚本!" && exit 1
 
-[[ -d "/proc/vz" ]] && echo -e "${red}错误:${plain} Your VPS is based on OpenVZ, not be supported." && exit 1
+[[ -d "/proc/vz" ]] && echo -e "${red}错误:${plain} 暂不支持基于 OpenVZ 的 VPS" && exit 1
 
 if [ -f /etc/redhat-release ]; then
     release="centos"
@@ -126,7 +126,7 @@ check_kernel_version() {
 install_elrepo() {
 
     if centosversion 5; then
-        echo -e "${red}Error:${plain} not supported CentOS 5."
+        echo -e "${red}错误:${plain} 暂不支持 CentOS 5."
         exit 1
     fi
 
@@ -139,7 +139,7 @@ install_elrepo() {
     fi
 
     if [ ! -f /etc/yum.repos.d/elrepo.repo ]; then
-        echo -e "${red}Error:${plain} Install elrepo failed, please check it."
+        echo -e "${red}错误:${plain} 安装 elrepo 失败, 请检查后，重新安装"
         exit 1
     fi
 }
@@ -156,13 +156,13 @@ install_config() {
     if [[ x"${release}" == x"centos" ]]; then
         if centosversion 6; then
             if [ ! -f "/boot/grub/grub.conf" ]; then
-                echo -e "${red}Error:${plain} /boot/grub/grub.conf not found, please check it."
+                echo -e "${red}错误:${plain} 未找到 /boot/grub/grub.conf, 请检查该文件是否存在"
                 exit 1
             fi
             sed -i 's/^default=.*/default=0/g' /boot/grub/grub.conf
         elif centosversion 7; then
             if [ ! -f "/boot/grub2/grub.cfg" ]; then
-                echo -e "${red}Error:${plain} /boot/grub2/grub.cfg not found, please check it."
+                echo -e "${red}错误:${plain} 未找到 /boot/grub2/grub.cfg , 请检查该文件是否存在"
                 exit 1
             fi
             grub2-set-default 0
@@ -174,12 +174,12 @@ install_config() {
 
 reboot_os() {
     echo
-    echo -e "${green}Info:${plain} The system needs to reboot."
-    read -p "Do you want to restart system? [y/n]" is_reboot
+    echo -e "${green}信息:${plain} 重启后生效"
+    read -p "要不现在重启系统? [y/n]" is_reboot
     if [[ ${is_reboot} == "y" || ${is_reboot} == "Y" ]]; then
         reboot
     else
-        echo -e "${green}Info:${plain} Reboot has been canceled..."
+        echo -e "${green}信息:${plain} 取消重启..."
         exit 0
     fi
 }
@@ -188,15 +188,15 @@ install_bbr() {
     check_bbr_status
     if [ $? -eq 0 ]; then
         echo
-        echo -e "${green}Info:${plain} TCP BBR has been installed. nothing to do..."
+        echo -e "${green}信息:${plain} TCP BBR has 已安装！"
         exit 0
     fi
     check_kernel_version
     if [ $? -eq 0 ]; then
         echo
-        echo -e "${green}Info:${plain} Your kernel version is greater than 4.9, directly setting TCP BBR..."
+        echo -e "${green}信息:${plain} 您的 kernel 版本 >= 4.9, 直接设置 TCP BBR..."
         sysctl_config
-        echo -e "${green}Info:${plain} Setting TCP BBR completed..."
+        echo -e "${green}信息:${plain} 设置 TCP BBR 完成！"
         exit 0
     fi
 
@@ -204,7 +204,7 @@ install_bbr() {
         install_elrepo
         yum --enablerepo=elrepo-kernel -y install kernel-ml kernel-ml-devel
         if [ $? -ne 0 ]; then
-            echo -e "${red}Error:${plain} Install latest kernel failed, please check it."
+            echo -e "${red}Error:${plain} 安装最新版 kernel 失败, 请检查后，重新安装"
             exit 1
         fi
     elif [[ x"${release}" == x"debian" || x"${release}" == x"ubuntu" ]]; then
@@ -213,13 +213,13 @@ install_bbr() {
         [ $? -ne 0 ] && echo -e "${red}Error:${plain} Get latest kernel version failed." && exit 1
         wget -c -t3 -T60 -O ${deb_kernel_name} ${deb_kernel_url}
         if [ $? -ne 0 ]; then
-            echo -e "${red}Error:${plain} Download ${deb_kernel_name} failed, please check it."
+            echo -e "${red}错误:${plain} 下载 ${deb_kernel_name} 失败, 请检查后，重试"
             exit 1
         fi
         dpkg -i ${deb_kernel_name}
         rm -fv ${deb_kernel_name}
     else
-        echo -e "${red}Error:${plain} OS is not be supported, please change to CentOS/Debian/Ubuntu and try again."
+        echo -e "${red}错误:${plain} 当前系统不被支持, 请更换成 CentOS/Debian/Ubuntu 后，重试"
         exit 1
     fi
 
@@ -230,17 +230,17 @@ install_bbr() {
 
 
 clear
-echo "---------- System Information ----------"
-echo " OS      : $opsy"
+echo "---------- 系统信息 ----------"
+echo " 系统      : $opsy"
 echo " Arch    : $arch ($lbit Bit)"
 echo " Kernel  : $kern"
 echo "----------------------------------------"
-echo " Auto install latest kernel for TCP BBR"
+echo " 自动安装最新版 kernel 为 TCP BBR"
 echo
 echo " URL: https://teddysun.com/489.html"
 echo "----------------------------------------"
 echo
-echo "Press any key to start...or Press Ctrl+C to cancel"
+echo "请按任意键启动...，或按住 Ctrl+C 取消操作。"
 char=`get_char`
 
 install_bbr 2>&1 | tee ${cur_dir}/install_bbr.log
