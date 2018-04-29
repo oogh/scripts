@@ -24,7 +24,7 @@
   - 使用:
 
     ```shell
-    wget --no-check-certificate https://github.com/teddysun/across/raw/master/bbr.sh && chmod +x bbr.sh && ./bbr.sh
+    wget --no-check-certificate https://raw.githubusercontent.com/oogh/scripts/master/bbr.sh && chmod +x bbr.sh && ./bbr.sh
     ```
 
   - 校验是否成功
